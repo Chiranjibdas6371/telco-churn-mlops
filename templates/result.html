@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result | TelcoGuard</title>
+
+    <style>
+        :root {
+            --bg: #0b1220;
+            --panel: #111c30;
+            --border: #283750;
+            --text: #edf4ff;
+            --muted: #9aabc4;
+            --accent: #2dd4bf;
+            --red: #fb7185;
+            --blue: #60a5fa;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 20px 6%;
+            border-bottom: 1px solid var(--border);
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        header span { color: var(--accent); }
+
+        main {
+            width: min(720px, 92%);
+            margin: auto;
+            padding: 45px 0;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: clamp(24px, 5vw, 42px);
+            text-align: center;
+        }
+
+        .eyebrow {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.2; }
+        .muted { color: var(--muted); }
+
+        .status {
+            display: inline-block;
+            border-radius: 30px;
+            padding: 8px 15px;
+            margin: 8px 0 18px;
+            font-weight: 800;
+        }
+
+        .churn { background: #451c2a; color: var(--red); }
+        .stay { background: #123a3a; color: var(--accent); }
+        .error { background: #451c2a; color: var(--red); }
+
+        .probability {
+            margin: 25px 0;
+            font-size: 54px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .bar {
+            height: 12px;
+            background: #26344b;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 18px 0;
+        }
+
+        .fill {
+            height: 100%;
+            border-radius: inherit;
+        }
+
+        .fill.churn { background: var(--red); padding: 0; }
+        .fill.stay { background: var(--accent); padding: 0; }
+
+        .note {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #0c1628;
+            color: var(--muted);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 25px;
+            background: var(--accent);
+            color: #06201e;
+            text-decoration: none;
+            padding: 13px 22px;
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+<header>Telco<span>Guard</span></header>
+
+<main>
+    <section class="card">
+        <div class="eyebrow">MODEL ANALYSIS COMPLETE</div>
+
+        {% if error %}
+            <h1>Unable to generate prediction</h1>
+            <div class="status error">Prediction error</div>
+            <p class="muted">{{ error }}</p>
+        {% elif result %}
+            <h1>Customer prediction</h1>
+
+            {% if result.churn == 1 %}
+                <div class="status churn">⚠ Likely to Churn</div>
+            {% else %}
+                <div class="status stay">✓ Likely to Stay</div>
+            {% endif %}
+
+            <p class="muted">Estimated probability of churn</p>
+
+            <div class="probability">
+                {{ "%.1f"|format(result.churn_probability * 100) }}%
+            </div>
+
+            <div class="bar">
+                <div
+                    class="fill {{ 'churn' if result.churn == 1 else 'stay' }}"
+                    style="width: {{ (result.churn_probability * 100)|round(2) }}%">
+                </div>
+            </div>
+
+            <p class="muted">
+                Predicted class:
+                <strong>{{ result.prediction_label }}</strong>
+            </p>
+
+            <div class="note">
+                <strong>Interpretation</strong><br>
+                This probability is the model's estimate, not a guarantee
+                that a customer will or will not churn. Use it alongside
+                customer context before deciding on a retention action.
+            </div>
+        {% endif %}
+
+        <a href="/" class="button">← Analyze another customer</a>
+    </section>
+</main>
+
+<footer>
+    TelcoGuard · Machine Learning Churn Prediction
+</footer>
+</body>
+</html>

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TelcoGuard | Customer Churn Prediction</title>
+
+    <style>
+        :root {
+            --bg: #0b1120;
+            --panel: #121c30;
+            --panel-light: #18263d;
+            --primary: #2dd4bf;
+            --primary-dark: #0f766e;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --border: #2b3a52;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background: #0e1729;
+            padding: 20px 7%;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: 750;
+            letter-spacing: -0.8px;
+        }
+
+        .brand span {
+            color: var(--primary);
+        }
+
+        .status {
+            color: #86efac;
+            font-size: 13px;
+            border: 1px solid #24594c;
+            padding: 8px 13px;
+            border-radius: 20px;
+            background: #102c29;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 45px auto;
+            padding: 0 24px;
+        }
+
+        .hero {
+            margin-bottom: 32px;
+        }
+
+        .eyebrow {
+            color: var(--primary);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: clamp(30px, 4vw, 43px);
+            line-height: 1.2;
+            margin-bottom: 14px;
+        }
+
+        .hero p {
+            max-width: 700px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .form-card, .info-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+        }
+
+        .section-heading {
+            font-size: 19px;
+            margin-bottom: 7px;
+        }
+
+        .section-description {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .form-section h3 {
+            color: var(--primary);
+            font-size: 14px;
+            margin-bottom: 18px;
+            padding-bottom: 11px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 13px;
+            color: #dbe4f0;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            min-height: 45px;
+            padding: 11px 12px;
+            background: #0c1527;
+            border: 1px solid #34445d;
+            border-radius: 9px;
+            color: var(--text);
+            font: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px #2dd4bf20;
+        }
+
+        select option {
+            background: #121c30;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: #06211f;
+            font-size: 15px;
+            font-weight: 750;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .submit-button:hover {
+            background: #5eead4;
+            transform: translateY(-1px);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .info-card {
+            position: sticky;
+            top: 20px;
+        }
+
+        .info-card h2 {
+            font-size: 18px;
+            margin-bottom: 22px;
+        }
+
+        .info-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-number {
+            font-size: 24px;
+            font-weight: 750;
+            color: var(--primary);
+            margin-bottom: 7px;
+        }
+
+        .info-title {
+            font-size: 13px;
+            font-weight: 650;
+            margin-bottom: 5px;
+        }
+
+        .info-text {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .notice {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #34516a;
+            background: #13283b;
+            border-radius: 10px;
+            color: #b9cce0;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--muted);
+            font-size: 12px;
+            border-top: 1px solid var(--border);
+            margin-top: 50px;
+        }
+
+        @media (max-width: 850px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card {
+                position: static;
+            }
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 15px;
+            }
+
+            .info-item {
+                border-bottom: none;
+            }
+        }
+
+        @media (max-width: 520px) {
+            header {
+                padding: 18px 20px;
+            }
+
+            main {
+                margin-top: 30px;
+                padding: 0 14px;
+            }
+
+            .form-card, .info-card {
+                padding: 20px 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="navbar">
+        <div class="brand">Telco<span>Guard</span></div>
+        <div class="status">● ML Prediction Platform</div>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="eyebrow">AI-powered customer analytics</div>
+        <h1>Customer Churn Prediction</h1>
+        <p>
+            Understand customer retention risk using your trained machine
+            learning model. Enter the customer's profile, subscription,
+            service usage and billing details to generate a prediction.
+        </p>
+    </section>
+
+    <div class="layout">
+
+        <section class="form-card">
+            <h2 class="section-heading">Customer Profile</h2>
+            <p class="section-description">
+                Complete all fields below. The model will estimate the
+                probability that this customer may discontinue the service.
+            </p>
+
+            <form id="predictionForm" action="/predict" method="POST">
+
+                <div class="form-section">
+                    <h3>01 / Personal Information</h3>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender" required>
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="SeniorCitizen">Senior Citizen</label>
+                            <select id="SeniorCitizen" name="SeniorCitizen" required>
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Partner">Has Partner?</label>
+                            <select id="Partner" name="Partner" required>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="Dependents">Has Dependents?</label>
+                            <select id="Dependents" name="Dependents" required>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>02 / Subscription Details</h3>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="tenure">Tenure (months)</label>
+                            <input type="number" id="tenure" name="tenure"
+                                   min="0" max="1000" step="1"
+                                   value="12" required>
+                            <span class="hint">Number of months as a customer</span>
+                        </div>
+
+                        <div class="field">
+                            <label for="Contract">Contract Type</label>
+                            <select id="Contract" name="Contract" required>
+                                <option value="Month-to-month">Month-to-month</option>
+                                <option value="One year">One year</option>
+                                <option value="Two year">Two year</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="PhoneService">Phone Service</label>
+                            <select id="PhoneService" name="PhoneService" required>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="MultipleLines">Multiple Lines</label>
+                            <select id="MultipleLines" name="MultipleLines" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No phone service">No phone service</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="InternetService">Internet Service</label>
+                            <select id="InternetService" name="InternetService" required>
+                                <option value="Fiber optic">Fiber optic</option>
+                                <option value="DSL">DSL</option>
+                                <option value="No">No internet service</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="PaperlessBilling">Paperless Billing</label>
+                            <select id="PaperlessBilling" name="PaperlessBilling" required>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>03 / Additional Services</h3>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="OnlineSecurity">Online Security</label>
+                            <select id="OnlineSecurity" name="OnlineSecurity" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="OnlineBackup">Online Backup</label>
+                            <select id="OnlineBackup" name="OnlineBackup" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="DeviceProtection">Device Protection</label>
+                            <select id="DeviceProtection" name="DeviceProtection" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="TechSupport">Tech Support</label>
+                            <select id="TechSupport" name="TechSupport" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="StreamingTV">Streaming TV</label>
+                            <select id="StreamingTV" name="StreamingTV" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="StreamingMovies">Streaming Movies</label>
+                            <select id="StreamingMovies" name="StreamingMovies" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>04 / Billing Information</h3>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="MonthlyCharges">Monthly Charges (₹)</label>
+                            <input type="number" id="MonthlyCharges"
+                                   name="MonthlyCharges" min="0"
+                                   step="0.01" value="70.00" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="TotalCharges">Total Charges (₹)</label>
+                            <input type="number" id="TotalCharges"
+                                   name="TotalCharges" min="0"
+                                   step="0.01" value="840.00" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="PaymentMethod">Payment Method</label>
+                            <select id="PaymentMethod" name="PaymentMethod" required>
+                                <option value="Electronic check">Electronic check</option>
+                                <option value="Mailed check">Mailed check</option>
+                                <option value="Bank transfer (automatic)">
+                                    Bank transfer (automatic)
+                                </option>
+                                <option value="Credit card (automatic)">
+                                    Credit card (automatic)
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="submit-button" id="submitButton" type="submit">
+                    Generate Churn Prediction →
+                </button>
+
+            </form>
+        </section>
+
+        <aside class="info-card">
+            <h2>Platform Overview</h2>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-number">ML</div>
+                    <div class="info-title">Machine Learning</div>
+                    <p class="info-text">
+                        Predictions from your trained Random Forest pipeline.
+                    </p>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-number">19</div>
+                    <div class="info-title">Input Features</div>
+                    <p class="info-text">
+                        Customer, service, subscription and billing details.
+                    </p>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-number">API</div>
+                    <div class="info-title">Flask Backend</div>
+                    <p class="info-text">
+                        Form submissions and JSON prediction requests.
+                    </p>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-number">MLOps</div>
+                    <div class="info-title">Monitoring Ready</div>
+                    <p class="info-text">
+                        Prometheus metrics endpoint for request monitoring.
+                    </p>
+                </div>
+            </div>
+
+            <div class="notice">
+                <strong>How it works</strong><br>
+                1. Enter customer details.<br>
+                2. Submit the form for inference.<br>
+                3. Review the predicted churn class and probability.<br><br>
+                Predictions are estimates, not guarantees of customer behavior.
+            </div>
+        </aside>
+
+    </div>
+</main>
+
+<footer>
+    TelcoGuard · Telco Customer Churn Prediction · Built with Flask and Machine Learning
+</footer>
+
+<script>
+    const form = document.getElementById("predictionForm");
+    const button = document.getElementById("submitButton");
+
+    form.addEventListener("submit", function () {
+        if (!form.checkValidity()) {
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Analyzing customer...";
+    });
+
+    // Keep total charges consistent when the user changes tenure or
+    // monthly charges, unless they manually edit total charges.
+    const tenure = document.getElementById("tenure");
+    const monthly = document.getElementById("MonthlyCharges");
+    const total = document.getElementById("TotalCharges");
+
+    let totalManuallyEdited = false;
+
+    total.addEventListener("input", function () {
+        totalManuallyEdited = true;
+    });
+
+    function updateTotalCharges() {
+        if (!totalManuallyEdited) {
+            const months = Number(tenure.value || 0);
+            const charge = Number(monthly.value || 0);
+            total.value = (months * charge).toFixed(2);
+        }
+    }
+
+    tenure.addEventListener("input", updateTotalCharges);
+    monthly.addEventListener("input", updateTotalCharges);
+</script>
+
+</body>
+</html>
