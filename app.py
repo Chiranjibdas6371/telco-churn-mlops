@@ -52,6 +52,32 @@ DRIFT = Gauge(
 )
 
 
+@app.before_request
+def before_request_metrics():
+    request._metrics_start_time = time.perf_counter()
+
+
+@app.after_request
+def after_request_metrics(response):
+    endpoint = request.endpoint or "unknown"
+    method = request.method
+    status = str(response.status_code)
+
+    REQUESTS.labels(
+        endpoint=endpoint,
+        method=method,
+        status=status
+    ).inc()
+
+    start_time = getattr(request, "_metrics_start_time", None)
+    if start_time is not None and endpoint != "metrics":
+        LATENCY.labels(endpoint=endpoint).observe(
+            time.perf_counter() - start_time
+        )
+
+    return response
+
+
 # Original features expected from the website/API
 REQUIRED = [
     "gender",
@@ -246,4 +272,4 @@ def predict():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(port=5000)
