@@ -1,0 +1,26 @@
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# IDE
+.vscode/
+
+# Generated model and dataset files
+models/
+data/
+
+# Generated evaluation reports
+reports/
+
+# Keep DVC pipeline definitions tracked
+!dvc.yaml
+!dvc.lock
+!params.yaml

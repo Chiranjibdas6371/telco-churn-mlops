@@ -1,0 +1,40 @@
+
+stages:
+  data_ingestion:
+    cmd: python src/data/data_ingestion.py
+    deps:
+      - src/data/data_ingestion.py
+      - data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv
+    outs:
+      - data/interim/telco_churn.csv
+
+  data_processing:
+    cmd: python src/data/processing.py
+    deps:
+      - src/data/processing.py
+      - data/interim/telco_churn.csv
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+      - src/model/model_building.py
+      - data/processed/train.csv
+    params:
+      - model_building
+    outs:
+      - models/best_model.pkl
+
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+      - src/model/model_evaluation.py
+      - models/best_model.pkl
+      - data/processed/test.csv
+    metrics:
+      - reports/evaluation_metrics.json
+    outs:
+      - reports/classification_report.json
+      - reports/confusion_matrix.json

@@ -1,0 +1,93 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/data/data_ingestion.py
+    deps:
+    - path: data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv
+      hash: md5
+      md5: 0f9de68e012bd3aed5fa7cdc9fc421af
+      size: 977501
+    - path: src/data/data_ingestion.py
+      hash: md5
+      md5: c4438a8b46a80ae14b7023d65c914a45
+      size: 1360
+    outs:
+    - path: data/interim/telco_churn.csv
+      hash: md5
+      md5: 7f07de26b054de4c36eed95a1277fe21
+      size: 978285
+  data_processing:
+    cmd: python src/data/processing.py
+    deps:
+    - path: data/interim/telco_churn.csv
+      hash: md5
+      md5: 7f07de26b054de4c36eed95a1277fe21
+      size: 978285
+    - path: src/data/processing.py
+      hash: md5
+      md5: ddc957b7f9b699b6c541b79dcb70c6b8
+      size: 3580
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 6b369d2f6c2f87238a5b4ddcad22eebb
+      size: 191162
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b2f5236cb0b034cb558e650ddacd22ab
+      size: 763233
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b2f5236cb0b034cb558e650ddacd22ab
+      size: 763233
+    - path: src/model/model_building.py
+      hash: md5
+      md5: 350bca0cbecbc871910492108357c05d
+      size: 2977
+    params:
+      params.yaml:
+        model_building:
+          n_estimators: 200
+          min_samples_split: 2
+          min_samples_leaf: 4
+          max_features: sqrt
+          max_depth: 8
+          class_weight: balanced
+          random_state: 42
+          n_jobs: -1
+    outs:
+    - path: models/best_model.pkl
+      hash: md5
+      md5: 28eeb5abce8bff439e421c3a936e0b0e
+      size: 4834331
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 6b369d2f6c2f87238a5b4ddcad22eebb
+      size: 191162
+    - path: models/best_model.pkl
+      hash: md5
+      md5: 28eeb5abce8bff439e421c3a936e0b0e
+      size: 4834331
+    - path: src/model/model_evaluation.py
+      hash: md5
+      md5: c9cf64ed05984033eb15c8b2cdd316d6
+      size: 2462
+    outs:
+    - path: reports/classification_report.json
+      hash: md5
+      md5: 3760afb1cbd11cda438082ae7938a91b
+      size: 740
+    - path: reports/confusion_matrix.json
+      hash: md5
+      md5: 974d7204e519395b20dc53c8d1d0d00e
+      size: 86
+    - path: reports/evaluation_metrics.json
+      hash: md5
+      md5: 1efc5bf16fed8e2917175e6ff48791d4
+      size: 183
